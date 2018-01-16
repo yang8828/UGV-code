@@ -1,0 +1,22 @@
+int32 ID
+int32 Age
+int32 PredictionAge
+
+geometry_msgs/Point32 ReferencePoint
+geometry_msgs/Point32 BoundingBoxCenter
+geometry_msgs/Point32 BoundingBoxSize
+geometry_msgs/Point32 ObjectBoxCenter
+geometry_msgs/Point32 ObjectBoxSize
+
+int32 ObjectBoxOrientation
+
+geometry_msgs/Point32 AbsoluteVelocity
+geometry_msgs/Point32 AbsoluteVelocitySigma
+geometry_msgs/Point32 RelativeVelocity
+
+int32 Classification
+int32 ClassificationAge
+int32 ClassificationCertainty
+int32 NumofContourPoints
+
+geometry_msgs/Point32[] ContourPoints

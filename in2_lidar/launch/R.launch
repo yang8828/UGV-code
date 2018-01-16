@@ -1,0 +1,54 @@
+<launch>
+  
+  <!-- VLP16 right, 720 points fusion -->
+
+  <node pkg="in2_lidar" type="rotate_16r_node" name="rotate_16r_node" respawn="true" output="screen">
+    <param name="rotate_angle_16r"   type="double" value="18.5"/>
+  </node>
+
+  <node pkg="in2_lidar" type="velodyne16r_node" name="velodyne16r_node" respawn="true" output="screen">
+    <param name="cell_size"  type="double" value="0.05"/>
+    <param name="grid_dimensions"  type="int" value="600"/>
+    <param name="display_range"  type="double" value="90.0"/>
+
+    <param name="height_nega_coe"  type="double" value="27.0"/>
+  	<param name="height_nega_min"  type="double" value="0.07"/>
+  	<param name="height_nega_max"  type="double" value="0.12"/>
+
+  	<param name="height_posi_coe"  type="double" value="27.0"/>
+  	<param name="height_posi_min"  type="double" value="0.20"/>
+  	<param name="height_posi_max"  type="double" value="0.25"/>
+
+  	<param name="angle_nega_coe"   type="double" value="27.0"/>
+  	<param name="angle_nega_min"   type="double" value="0.10"/>
+  	<param name="angle_nega_max"   type="double" value="0.15"/>
+
+  	<param name="angle_posi_coe"   type="double" value="27.0"/>
+  	<param name="angle_posi_min"   type="double" value="0.05"/>
+  	<param name="angle_posi_max"   type="double" value="0.10"/>
+
+  	<param name="deadzone_nega"   type="double" value="10.0"/>
+  	<param name="deadzone_posi"   type="double" value="10.0"/>
+
+  	<param name="showmessages"   type="bool" value="false"/>
+  	<param name="showimages"     type="bool" value="false"/>
+  </node>
+  
+  <node pkg="in2_lidar" type="heightmap16r_node" name="heightmap16r_node" respawn="true" output="screen">
+    <param name="showmessages"   type="bool" value="false"/>
+	<param name="showimages"     type="bool" value="false"/>
+  </node>
+
+  <node pkg="in2_lidar" type="heightmaprcv_node" name="heightmaprcv_node" respawn="true" output="screen">
+    <param name="showmessages"   type="bool" value="false"/>
+	<param name="showimages"     type="bool" value="false"/>
+  </node>
+  
+  <node pkg="in2_lidar" type="fuselidar_node" name="fuselidar_node" respawn="true" output="screen">
+    <param name="grid_dimensions"  type="int" value="600"/>
+    <param name="display_range"  type="double" value="120.0"/>
+    <param name="showmessages"   type="bool" value="false"/>
+	  <param name="showimages"     type="bool" value="true"/>
+  </node>
+  
+</launch>

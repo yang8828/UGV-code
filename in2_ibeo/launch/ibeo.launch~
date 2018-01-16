@@ -1,0 +1,15 @@
+<!-- -*- mode: XML -*- -->
+<!-- run velodyne_height_map/HeightMap 
+
+     $Id: heightmap_nodelet.launch 2088 2012-02-23 15:49:14Z jack.oquin $
+  -->
+
+<launch>
+  <!--start velodyne driver -->
+  <node pkg="in2_ibeo" type="ibeo_8L_node" name="ibeo_8L_node" respawn="true" />
+  <node pkg="in2_ibeo" type="ibeo_4L_node" name="ibeo_4L_node" respawn="true" />
+  <node pkg="in2_ibeo" type="ibeo_fusion_node" name="ibeo_fusion_node" respawn="true" />
+  <node pkg="in2_ibeo" type="heightmap_g20_node" name="heightmap_g20_node" respawn="true" />
+  <node pkg="in2_roadedge" type="roadedge_node" name="roadedge_node" respawn="true" />
+  <node pkg="in2_ObjCheck" type="ObjCheck_node" name="ObjCheck_node" respawn="true" />
+</launch>

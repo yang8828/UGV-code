@@ -1,0 +1,13 @@
+<launch>
+  <node pkg="in2_costmap" type="costmap_node" name="costmap_node" respawn="true" />
+  
+  <node pkg="in2_decision" type="decision_node" name="decision_node" respawn="true">
+  	<param name="is_recover_from_dead"      type="bool"     value="false"/>
+  </node>
+  
+  <node pkg="in2_plan" type="plan_node_3" name="plan_node_3" respawn="true" output="screen" />
+  
+  <node pkg="in2_control" type="localmap" name="localmap" respawn="true" />
+  
+  <node pkg="in2_plan" type="far_obj_check" name="far_obj_check" respawn="true" output="screen" />
+</launch>

@@ -1,0 +1,42 @@
+<launch>
+  
+  <!-- VLP16 left, height map fusion, road edge, 720 points -->
+
+  <node pkg="in2_lidar" type="rotate_16l_node" name="rotate_16l_node" respawn="true" output="screen">
+    <param name="rotate_angle_16l"   type="double" value="19.0"/>
+  </node>
+
+  <node pkg="in2_lidar" type="velodyne16l_node" name="velodyne16l_node" respawn="true" output="screen">
+  	<param name="cell_size"  type="double" value="0.05"/>
+  	<param name="grid_dimensions"  type="int" value="600"/>
+  	<param name="display_range"  type="double" value="100.0"/>
+
+  	<param name="height_nega_coe"  type="double" value="27.0"/>
+	<param name="height_nega_min"  type="double" value="0.07"/>
+	<param name="height_nega_max"  type="double" value="0.12"/>
+
+	<param name="height_posi_coe"  type="double" value="27.0"/>
+	<param name="height_posi_min"  type="double" value="0.05"/>
+	<param name="height_posi_max"  type="double" value="0.10"/>
+
+  	<param name="angle_nega_coe"   type="double" value="27.0"/>
+	<param name="angle_nega_min"   type="double" value="0.10"/>
+	<param name="angle_nega_max"   type="double" value="0.15"/>
+
+  	<param name="angle_posi_coe"   type="double" value="27.0"/>
+	<param name="angle_posi_min"   type="double" value="0.10"/>
+	<param name="angle_posi_max"   type="double" value="0.15"/>
+
+	<param name="deadzone_nega"   type="double" value="10.0"/>
+	<param name="deadzone_posi"   type="double" value="10.0"/>
+
+	<param name="showmessages"   type="bool" value="false"/>
+	<param name="showimages"     type="bool" value="true"/>
+  </node>
+  
+  <node pkg="in2_lidar" type="heightmap16l_node" name="heightmap16l_node" respawn="true" output="screen">
+    <param name="showmessages"   type="bool" value="false"/>
+	<param name="showimages"     type="bool" value="false"/>
+  </node>
+  
+</launch>

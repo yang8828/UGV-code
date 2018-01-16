@@ -1,0 +1,147 @@
+#include <math.h>
+#include <cv.h>
+#include <highgui.h>
+#include <opencv/cv.h>
+#include <iostream>
+#include <stdio.h>
+#include <ros/ros.h>
+#include <in2_msgs/InsInfo.h>
+#include <in2_msgs/LaneInfoV2.h>
+#include <in2_msgs/ScanInfoV2.h>
+#include <in2_msgs/UdpGeneral.h>
+#include <in2_msgs/UdpGeneralShort.h>
+//#include <in2_msgs/GisVector.h>
+#include <math.h>
+
+#include <in2_localmap/C_Line.h>
+#include <in2_localmap/C_Stopline.h>
+#include <in2_localmap/C_Linear.h>
+#include <in2_localmap/C_Ins.h>
+#include <in2_localmap/C_Scan.h>
+#include <in2_localmap/C_Gis.h>
+#include <in2_localmap/C_Lane.h>
+#include <in2_localmap/C_Param.h>
+#include "in2_localmap/C_GisError.h"
+#include <in2_localmap/C_CostMap.h>
+#include <in2_localmap/C_RoadEdge.h>
+
+using namespace cv;
+
+class C_TempDraw
+{
+	Point PointsToDraw[100];
+	Scalar PointsColor[100];
+	int PointsRadius[100];
+	int PointsNum;
+public:
+	C_TempDraw()
+	{
+		init();
+	}
+	void init()
+	{
+		PointsNum = 0;
+	}
+	void add(Point xy,Scalar color,int r = 6)
+	{
+		PointsToDraw[PointsNum].x = xy.x;
+		PointsToDraw[PointsNum].y = 3000 - xy.y;
+		PointsColor[PointsNum] = color;
+		PointsRadius[PointsNum] = r;
+		PointsNum++;
+	}
+	void Draw(Mat &Image)
+	{
+		for(int i=0;i<PointsNum;i++)
+		{
+			circle(Image,PointsToDraw[i],PointsRadius[i],PointsColor[i],-1);
+		}
+		int fontFace = FONT_HERSHEY_SIMPLEX;
+		double fontScale = 1.5;
+		int thickness = 3;
+		char title_data[30];
+#if VERSION_SUB_URBAN
+		sprintf(title_data,"Version: SUB_URBAN");
+#endif
+#if VERSION_URBAN
+		sprintf(title_data,"Version: URBAN");
+#endif
+		putText(Image, title_data, Point(2500,2950), fontFace, fontScale, InsInfoColor, thickness);
+	}
+};
+
+class C_LocalMap
+{
+	int temp_counter;
+	ros::Subscriber roadedge_sub;
+	ros::Subscriber scaninfo_sub;
+	ros::Subscriber laneinfo_sub;
+	ros::Subscriber ins_sub;
+	ros::Subscriber gis_sub;
+	ros::Subscriber cp_sub;
+	long LastScanInfo_TS;
+	long LastLaneInfo_TS;
+	long LastInsInfo_TS;
+	long LastGisInfo_TS;
+
+	ros::Publisher udp_publisher_;
+	in2_msgs::UdpGeneral gisrec_msg;
+	in2_msgs::UdpGeneral last_gisrec_msg;
+	CvPoint2D64f last_gis_earth[301];
+	bool haveLastGisrecMsg;
+
+	ros::Publisher udp_publisher_laneinfo_;
+	in2_msgs::LaneInfoV2 laneinfo_msg;
+
+	ros::Publisher gis_vector_pub;
+	//in2_msgs::GisVector gisvectorinfo_msg;
+public:
+	C_RoadEdgeFrame RoadEdgeFrame;
+	C_InsFrameHis InsFrameHis;
+	C_GisFrame GisFrame;
+	C_ScanFrameHis ScanFrameHis;
+	C_LaneModel LaneModel;
+	C_GisError GisError;
+	C_CostMap CostMap;
+
+	C_TempDraw tempDraw;
+
+	long int LocalMapCnter_10ms;
+	long int LocalMapCnter_10min;
+
+	long int LaneCnter_10ms;
+	long int LaneCnter_10min;
+public:
+	C_LocalMap(ros::NodeHandle node, ros::NodeHandle priv_nh);
+
+	void transformTopic_ControlPanelInfo(const in2_msgs::UdpGeneralShort::ConstPtr &cp_sub);
+	void transformTopic_GisInfo(const in2_msgs::UdpGeneral::ConstPtr &gisinfo_sub);
+#if USING_SCANINFOV2
+	void transformTopic_ScanInfo(const in2_msgs::ScanInfoV2::ConstPtr &scaninfo_sub);
+#endif
+#if USING_SCANINFOBG
+	void transformTopic_ScanInfoBG(const in2_msgs::ScanInfoV2::ConstPtr &scaninfo_sub);
+#endif
+	void transformTopic_RoadEdge(const in2_msgs::RoadEdge::ConstPtr &roadedge_sub);
+	void transformTopic_LaneInfo(const in2_msgs::LaneInfoV2::ConstPtr &laneinfo_sub);
+	void transformTopic_InsInfo(const in2_ins::InsInfo::ConstPtr &insinfo_sub);
+	void DrawTimeStamp(Mat &Image);
+	void InitialAlignmeng(Mat &Image);
+	void Correcting(Mat &Image);
+	void CorrectGis();
+	void EstimateGisError();
+	void CorrectGIsError();
+    void CorrectGisError_2();
+    void CorrectGisError_3();
+    void CorrectGisError_4(const int32_t _ms, C_InsFrame cur_ins);
+    void SetGisErrorToHere();
+    CvPoint convENUto3000(double x, double y, double x0, double y0, double azimuth);
+    CvPoint2D64f conv3000toENU(int x, int y, double x0, double y0, double azimuth);
+
+};
+
+
+
+
+
+
