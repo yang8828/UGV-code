@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<methodCall>
+  <methodName>publisherUpdate</methodName>
+  <params>
+    <param>
+      <value>
+        <string>/master</string>
+      </value>
+    </param>
+    <param>
+      <value>
+        <string>/TREK</string>
+      </value>
+    </param>
+    <param>
+      <value>
+        <array>
+          <data>
+            <value>
+              <string>http://inin-lab4:35530/</string>
+            </value>
+          </data>
+        </array>
+      </value>
+    </param>
+  </params>
+</methodCall>

@@ -1,0 +1,135 @@
+﻿问题：
+*******************???!!!***********************************
+由于用superMap做常熟地图时，将常熟的带号选为50，坐标转换未根据经度计算中央子午线，而是直接采用117度（带号=50）
+MainForm 类中的convert();
+*******************???!!!***********************************
+
+问题：1. 打开两次任务文件时，程序退出
+2. 加任务点时退出。
+3. UDP数据有断时地图匹配有问题
+   OK 匹配距离超过？50米，则进行整个路网的匹配,接口
+   要判断是未收到数据（通过系统时间确定多久未收到数据）还是定位精度有问题。
+4. OK 地图匹配条件：定位误差<?10.0，过车身；否则用惯导值
+5. OK 收到禁行标志时，判断当前点（匹配后）与路口距离<100米，禁行有效；距离太远则无效。
+6. 起点GIS录包，匹配点跳变到其他位置
+7. OK 直行路口的建议车道
+8. OK 立交桥角度，能否满足30度，发送右拐，做接口
+
+
+模拟数据：
+1. OK，终点与最后一个节点重合或过节点后马上为终点。
+2. ！立交桥（GIS数据库属性增加立交桥），(1) 左拐在左侧 (2) 左拐在右侧，(3-4)右拐相似， (5)直行 
+3. OK ,实时坐标点的地图匹配发送的导航数据，根据组合定位误差确定是否匹配，若匹配则发匹配后的坐标。
+4. OK,实时坐标点的简单滤波
+5. ！初始化多次会卡
+6. ！没有预存地图时的GIS导航，hermit插值
+7. 重启时进行地图匹配的坐标点值应为1秒数据滤波结果
+
+**************************2014.10.8*******************************
+1. 图上修改任务点，自动存储在“改后任务文件.txt"中，存储前进行了坐标反变换和计算带号。
+2. 过路口停车有问题。
+   直行或没有交叉口的情况下，总路口数为0，使得比赛状态不能出现“MATCHSTATUS_OVERMATCH”
+   修改：当总路口数为0时，则将其改为1。
+3. 增加发送无路网标志
+	PublicVariable.my_client.DataSetBeforeSendToUDP(COMMANDCODE_FLAGOFROADNET, DataToUDPExcludeRoadPoints.FlagOfRoadNet);
+4. 增加接收禁行标志
+	my_client_OnRefresh(），设置DataFromUDP.Flag_Forbid_Pass = YES;
+            
+****************************************************************
+2014.10.7
+立交桥标志暂时用if_corssline来给出，0为不能并线，1为能并线，2为立交桥标志。并将立交桥的点设为if_cross
+traffic_sign=0代表不知道有没有交通标识，1代表有交通标识但不知道具体交通标识，2-10代表具体交通标识
+加了按钮，选择发送点模式是过车身还是原有策略
+经纬度转换 带号强制制成中央经度为117度
+match_status添加了起点之后二十米赋为1
+居民区的lane_info初始赋值0xff
+解决了转向发送问题
+现在的状态是：如果终点前最后一个路口是直行，则match_status赋3与是否通过路口无关
+
+2014.10.6
+禁行标志位在UDP中还没有写
+重规划之前速度是否需要给0
+判断禁行路段角度问题，做了接口
+
+****************************************************************
+2014.10.5
+1.将任务点进行分组，设置任务点的status2为6时代表居民区入口，为7时代表居民区出口，将任务点进行分组；居民区内的任务点以hermite插值方式连接
+2.修改任务点功能：可以任意添加任务点，可以任意删除任务点，改动后自动生成TXT任务文件（将原来的文件覆盖），并自动读入
+****************************************************************
+
+2014.9.10  修改
+在“百度版”基础上修改，将部分军赛程序拷贝过来。
+坐标说明：x-东向；y-北向
+
+可能存在隐患的地方：
+(1) GIS发送的导航数据是相对载体坐标系的，通过接收IMU的航向角将大地坐标转换为载体坐标。问题：IMU的航向角的精度
+(2) 删除：原程序发送的距离信息对距离进行判断：>204.7，则=204.7；还判断<0等情况，参见2014年9月30日之前的程序
+
+
+9.29
+地图匹配修正值（东向和北向）
+操作读入文件错误
+初始化
+行人或特殊任务点加“不能并线”
+发送数据
+
+
+任务文件属性0-4
+定时器线程是否关闭？
+0.4米 导航点步长，改为常量
+
+/
+
+public const int TASKPROPERTY_MAXNUMBER = 7;                    //属性定义最大数量
+        public const char TASKPROPERTY_STARTPOINT = (char)0x0;          //起点
+        public const char TASKPROPERTY_ENDPOINT = (char)0x7;            //终点
+        public const char TASKPROPERTY_ENTERCURVERPOINT = (char)0x1;    //入弯点
+        public const char TASKPROPERTY_OUTCURVERPOINT = (char)0x2;      //出弯点
+        public const char TASKPROPERTY_NORMALPOINT = (char)0x3;         //普通路点
+        public const char TASKPROPERTY_ENTERPARKPOINT = (char)0x4;      //泊车区入点
+        public const char TASKPROPERTY_OUTPARKPOINT = (char)0x5;        //泊车区出点
+        public const char TASKPROPERTY_PARKPOINT = (char)0x6;           //泊车点
+
+
+		public const char TASKPROPERTY_UNCERTAINTRAFFICSIGN = (char)0x0; //不确定是否有交通标志
+        public const char TASKPROPERTY_GOAHEAD = (char)0x01;             //直行
+        public const char TASKPROPERTY_TURNLEFT = (char)0x02;            //左转
+        public const char TASKPROPERTY_TURNRIGHT = (char)0x03;           //右转
+        public const char TASKPROPERTY_UTURN = (char)0x04;               //U-turn
+        public const char TASKPROPERTY_EXISTTRAFFICSIGN = (char)0x05;    //有交通标志
+
+
+		public const char MATCHSTATUS_BEFOREMATCH = (char)0x01;         //比赛前（默认值） 
+        public const char MATCHSTATUS_MATCHING = (char)0x02;            //比赛中，正常行驶
+        public const char MATCHSTATUS_OVERMATCH = (char)0x03;           //比赛即将结束
+
+*******************************************
+2014.9.28
+1. 距离路口100米设置要求行驶车道线的序号
+2. 
+debug2014 修改距离
+终点100米
+最高时速40.0
+发送并线标志//X7：并线标志，0 不能并线  1 （默认）能并线
+            RunningStatus.ChangeLane = YES;
+*******************************************
+2014.9.16
+1. 自动读入地图文件和任务文件，判断文件存在性有效性
+   任务点：判断任务数据的有效性，包括经纬度、起点和终点
+
+*******************************************
+2014.9.15
+1. 强荣新编了一个生成任务文件的执行程序。
+2. 把MainForm.cs初始化中(MainForm_load)重复定义(含new)的变量定义移至类前；
+3. MainForm.cs初始化时从文件MapShift.txt中读取地图东向和北向偏移量。
+4. 在地图窗口MapForm.cs[设计]中将移到当前点由四个方向箭头改为“东向偏移”和“北向偏移”，鼠标滚轮可修改此参数-1000至1000，步长0.1
+   退出地图窗口时自动存储在“MapShift.txt”文件中。
+
+问题：
+1. SendDataToUDP()发送
+	send()发送前参数设置
+	2. timer1
+*******************************************
+2014.9.11
+1. 替换convert()
+2. 查找%，分母为变量时判断变量为0时返回
